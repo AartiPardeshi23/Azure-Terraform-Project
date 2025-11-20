@@ -1,27 +1,22 @@
-name: "Terraform + Ansible Azure Deployment"
+name: "Terraform Deploy to Azure"
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:   # run manually
   push:
     paths:
-      - 'terraform/**'
-      - 'ansible/**'
+      - 'terraform/**'   # run when terraform files change
 
 jobs:
-  deploy:
+  terraform:
     runs-on: ubuntu-latest
-
+    
     steps:
-
-      # STEP 1 – Checkout repo
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      # STEP 2 – Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      # STEP 3 – Azure Login
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -30,58 +25,26 @@ jobs:
           subscription-id: ${{ secrets.AZURE_CREDENTIALS_SUBSCRIPTION_ID }}
           client-secret: ${{ secrets.AZURE_CREDENTIALS_CLIENT_SECRET }}
 
-      # STEP 4 – Terraform Init
       - name: Terraform Init
         working-directory: ./terraform
         run: terraform init
 
-      # STEP 5 – Terraform Validate
       - name: Terraform Validate
         working-directory: ./terraform
         run: terraform validate
 
-      # STEP 6 – Terraform Plan
       - name: Terraform Plan
         working-directory: ./terraform
-        run: |
-          terraform plan \
-            -var="client_id=${{ secrets.AZURE_CREDENTIALS_CLIENT_ID }}" \
-            -var="client_secret=${{ secrets.AZURE_CREDENTIALS_CLIENT_SECRET }}" \
-            -var="tenant_id=${{ secrets.AZURE_CREDENTIALS_TENANT_ID }}" \
-            -var="subscription_id=${{ secrets.AZURE_CREDENTIALS_SUBSCRIPTION_ID }}" \
-            -var="ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}"
+        run: terraform plan -var="client_id=${{ secrets.AZURE_CREDENTIALS_CLIENT_ID }}" \
+                            -var="client_secret=${{ secrets.AZURE_CREDENTIALS_CLIENT_SECRET }}" \
+                            -var="tenant_id=${{ secrets.AZURE_CREDENTIALS_TENANT_ID }}" \
+                            -var="subscription_id=${{ secrets.AZURE_CREDENTIALS_SUBSCRIPTION_ID }}" \
+                            -var="ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}"
 
-      # STEP 7 – Terraform Apply (create VM)
       - name: Terraform Apply
         working-directory: ./terraform
-        run: |
-          terraform apply -auto-approve \
-            -var="client_id=${{ secrets.AZURE_CREDENTIALS_CLIENT_ID }}" \
-            -var="client_secret=${{ secrets.AZURE_CREDENTIALS_CLIENT_SECRET }}" \
-            -var="tenant_id=${{ secrets.AZURE_CREDENTIALS_TENANT_ID }}" \
-            -var="subscription_id=${{ secrets.AZURE_CREDENTIALS_SUBSCRIPTION_ID }}" \
-            -var="ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}"
-
-      # STEP 8 – Extract VM Public IP
-      - name: Get Public IP
-        working-directory: ./terraform
-        id: getip
-        run: |
-          IP=$(terraform output -raw public_ip)
-          echo "VM_IP=$IP" >> $GITHUB_ENV
-
-      # STEP 9 – Update inventory with actual IP
-      - name: Update Ansible inventory
-        run: |
-          sed -i "s/CHANGE_ME/${VM_IP}/g" ansible/inventory
-
-      # STEP 10 – Install Ansible
-      - name: Install Ansible
-        run: sudo apt-get update && sudo apt-get install -y ansible
-
-      # STEP 11 – Run Ansible Playbook
-      - name: Run Ansible
-        env:
-          SSH_PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
-        run: |
-          ansible-playbook -i ansible/inventory ansible/playbook.yml
+        run: terraform apply -auto-approve -var="client_id=${{ secrets.AZURE_CREDENTIALS_CLIENT_ID }}" \
+                             -var="client_secret=${{ secrets.AZURE_CREDENTIALS_CLIENT_SECRET }}" \
+                             -var="tenant_id=${{ secrets.AZURE_CREDENTIALS_TENANT_ID }}" \
+                             -var="subscription_id=${{ secrets.AZURE_CREDENTIALS_SUBSCRIPTION_ID }}" \
+                             -var="ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}"
