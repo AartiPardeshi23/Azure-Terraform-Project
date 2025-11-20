@@ -64,6 +64,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
     username   = var.admin_username
     public_key = var.ssh_public_key
   }
+  custom_data = file("${path.module}/cloudinit.yaml")
 
   source_image_reference {
     publisher = "Canonical"
