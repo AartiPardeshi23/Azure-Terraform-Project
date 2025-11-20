@@ -1,0 +1,7 @@
+subscription_id = "c01b9ae8-4013-4594-b52e-3e54a63783d0"
+client_id       = "c8bc4b0e-88e3-44cc-b26c-b05838e9a360"
+client_secret   = "-ya8Q~HKxso_mGGpyEG3HOWfnu2Nz1GdEdl-AaMX"
+tenant_id       = "730278f4-a633-4b89-b030-557f72635af5"
+
+admin_username  = "azureuser"
+ssh_public_key  = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDoWT4LI4zRebRtz7hklyryvkx8rMDGxVfhgNglm+9cHpjx1TVA5oCpr6eXiMwvpGjPx2qN01JB9twoSyjtTPX2aDK4JVWsXFi7KtokeJJ/BfjxaVFVdVw4/Vx+GpSzPdcL6CBnvrEkolUVSQ4layyvE8crTLEKZrfoVQf+oMIkKAXrOCgwTwaPmf3WejEGalW2sKLouIXJnvkVpvkCS7I85DFXGgXNQo7SXuWebfv7Bl/FG7E2OW/HLG0mNMVIvf7YDqJvreHNVC3YsAiwe4ET9YD0AEoZfx+mLeut2TfDXezF/FWfjtqdnqaR7LxVxs4/IvZg+rLPPmxGP78r5ViwxpcgRLa4MUEjfnLc96PPA8Smpks72W/okHebYF5DJOhpLA/gPVtOar0uXq9J1Mp3hCFbKeMEBXws8JJ27uTPTmfQv+1ycfPE8PlC7OKIubkbAzSqhHhBI9UpvV1z/JSL+TDrMVZVYOeec0IItvHIdCEWxzXhoSFGilL57jArcuXuWHe70B+9L+aHewehVjpQQpArFpZgkbtY7gX6uSP5jkZwZNMGr6pB0qn9BULarBHz5YjqzUcPJ30ei0AZgwFdD56bZ71An1DZoXAES97Mx7ezmwXTDLzdgD95Tcc2PN5uiHudnnXrOYsaEC+mTXOSd9ICpm1JPzuvzQ7q7vnoCw== achhe@SandboxHost-638992088527559896"
