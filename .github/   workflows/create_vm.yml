@@ -3,6 +3,7 @@ name: Create VM at 9 AM IST
 on:
   schedule:
     - cron: "0 3 * * *"      # 3 AM UTC = 9 AM IST
+  workflow_dispatch:
 
 jobs:
   terraform:
