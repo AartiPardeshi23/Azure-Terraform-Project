@@ -1,0 +1,59 @@
+name: Run Ansible Playbook - Create Users
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run-ansible:
+    name: Run Ansible Playbook
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible
+
+      - name: Configure SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          # Optional port variable fallback
+          if [ -z "${{ secrets.SSH_PORT }}" ]; then export SSH_PORT=22; else export SSH_PORT=${{ secrets.SSH_PORT }}; fi
+        shell: bash
+
+      - name: Add server to known_hosts (avoid host verification errors)
+        run: |
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+        shell: bash
+
+      - name: Create dynamic inventory file
+        run: |
+          cat > inventory.ini <<'EOF'
+          [servers]
+          ${SERVER_IP} ansible_user=${ANSIBLE_USER} ansible_ssh_private_key_file=~/.ssh/id_rsa
+          EOF
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          ANSIBLE_USER: ${{ secrets.ANSIBLE_USER }}
+
+      - name: Show inventory (debug)
+        run: |
+          echo "Inventory contents:"
+          sed -n '1,120p' inventory.ini
+
+      - name: Run Ansible playbook to create users
+        run: |
+          ansible-playbook -i inventory.ini ansible/create_users.yml --extra-vars "ansible_user=${{ secrets.ANSIBLE_USER }}"
