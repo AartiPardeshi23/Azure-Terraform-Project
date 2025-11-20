@@ -17,6 +17,13 @@ resource "azurerm_subnet" "subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
+resource "azurerm_public_ip" "public_ip" {
+  name                = "tf-demo-ip"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Dynamic"
+}
+
 resource "azurerm_network_interface" "nic" {
   name                = "tf-demo-nic"
   location            = azurerm_resource_group.rg.location
@@ -30,24 +37,13 @@ resource "azurerm_network_interface" "nic" {
   }
 }
 
-resource "azurerm_public_ip" "public_ip" {
-  name                = "tf-demo-ip"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  allocation_method   = "Dynamic"
-}
-
 resource "azurerm_linux_virtual_machine" "vm" {
   name                = "tf-demo-vm"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = "Standard_B1s"
-  os_disk {
-    name                 = "vm-osdisk"
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
   admin_username      = var.admin_username
+
   network_interface_ids = [
     azurerm_network_interface.nic.id
   ]
@@ -56,6 +52,13 @@ resource "azurerm_linux_virtual_machine" "vm" {
     username   = var.admin_username
     public_key = var.ssh_public_key
   }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+    disk_size_gb         = 30
+  }
+
   custom_data = file("${path.module}/cloudinit.yaml")
 
   source_image_reference {
