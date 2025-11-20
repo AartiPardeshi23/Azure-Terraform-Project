@@ -1,0 +1,25 @@
+---
+- name: Create real users on Azure VM using chpasswd
+  hosts: ubuntu_vm
+  become: yes
+  vars_files:
+    - users.yml
+
+  tasks:
+
+    - name: Create users with /bin/bash
+      user:
+        name: "{{ item }}"
+        create_home: yes
+        shell: /bin/bash
+      loop: "{{ users }}"
+
+    - name: Set password for all users using chpasswd
+      ansible.builtin.shell: |
+        echo "{{ item }}:Password@123" | chpasswd
+      loop: "{{ users }}"
+
+    - name: Unlock all user accounts
+      ansible.builtin.shell: |
+        passwd -u {{ item }}
+      loop: "{{ users }}"
