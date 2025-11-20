@@ -1,0 +1,48 @@
+---
+- name: Configure new Azure VM
+  hosts: servers
+  become: true
+
+  tasks:
+
+    - name: Update APT packages
+      apt:
+        update_cache: yes
+
+    - name: Install required dependencies for Docker
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu jammy stable
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: true
+
+    - name: Ensure Docker is running
+      service:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Create new user
+      user:
+        name: devuser
+        password: "{{ 'DevUser@123' | password_hash('sha512') }}"
+        groups: docker
+        append: yes
