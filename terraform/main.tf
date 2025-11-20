@@ -59,7 +59,8 @@ resource "azurerm_linux_virtual_machine" "vm" {
     disk_size_gb         = 30
   }
 
-  custom_data = file("${path.module}/cloudinit.yaml")
+  custom_data = base64encode(file("${path.module}/cloudinit.yaml"))
+
 
   source_image_reference {
     publisher = "Canonical"
